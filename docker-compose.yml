@@ -28,19 +28,6 @@ services:
     networks:
       - app-network
 
-  trino-coordinator:
-    image: trinodb/trino:440
-    container_name: trino-coordinator
-    ports:
-      - "8080:8080"  # Trino Web UI and API
-    volumes:
-      - ./trino_etc:/etc/trino   # Trino configuration
-    depends_on:
-      - postgres-metadata-db   # Wait for Hive Metastore to be ready
-      - minio-server         # Wait for MinIO to be ready
-    networks:
-      - app-network
-
   gui-backend:
     build:
       context: ./gui_backend

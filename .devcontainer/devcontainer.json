@@ -1,0 +1,50 @@
+{
+    "name": "Trino/MinIO/PG Backend Dev",
+    // Points to your existing docker-compose.yml file. The path is relative to this devcontainer.json file.
+    "dockerComposeFile": [
+        "../docker-compose.yml"
+    ],
+    // The name of the service in your docker-compose.yml to use for the dev container.
+    "service": "gui-backend",
+    // The path in the container where your project's source code will be.
+    "workspaceFolder": "/app",
+    // Customizations for VS Code when working inside this dev container.
+    "customizations": {
+        "vscode": {
+            // List of VS Code extensions to install automatically inside the dev container.
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "ms-azuretools.vscode-docker"
+            ],
+            // VS Code settings to apply specifically inside this dev container.
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.ruffEnabled": true,
+                "python.formatting.provider": "none",
+                "[python]": {
+                    // Editor settings for Python files.
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll": "explicit",
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    },
+    // Tells VS Code which user to run as inside the container.
+    "remoteUser": "root",
+    // Optional: You can define commands to run after the container is created/started.
+    // "postCreateCommand": "echo 'Dev container ready!'"
+    // Optional: Forward ports from other services if you want to access them via localhost from tools running on your host.
+    "forwardPorts": [
+        8001, // Default port for FastAPI app (gui_backend), configurable in the app settings
+        8080, // Trino UI
+        9001, // MinIO Console
+        5432  // PostgreSQL
+    ]
+}

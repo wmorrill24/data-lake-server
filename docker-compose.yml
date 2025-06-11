@@ -1,0 +1,79 @@
+services:
+  minio-server:
+    image: minio/minio:latest
+    container_name: minio-server
+    ports:
+      - "9000:9000"   # MinIO API port
+      - "9001:9001"   # MinIO Console port
+    environment:
+      MINIO_ROOT_USER: Hirzf9ujia
+      MINIO_ROOT_PASSWORD: RNtS0NB7hR
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data   # Persistent storage for MinIO
+    networks:
+      - app-network
+
+  postgres-metadata-db:
+    image: postgres:13
+    container_name: postgres-metadata-db
+    ports:
+      - "5432:5432"  # Postgres port
+    environment:
+      POSTGRES_USER: U1dXe0BNTC
+      POSTGRES_PASSWORD: EXG06q9wwD
+      POSTGRES_DB: metadata_db
+    volumes:
+      - postgres_db_data:/var/lib/postgresql/data   # Persistent storage for Postgres
+    networks:
+      - app-network
+
+  trino-coordinator:
+    image: trinodb/trino:440
+    container_name: trino-coordinator
+    ports:
+      - "8080:8080"  # Trino Web UI and API
+    volumes:
+      - ./trino_etc:/etc/trino   # Trino configuration
+    depends_on:
+      - postgres-metadata-db   # Wait for Hive Metastore to be ready
+      - minio-server         # Wait for MinIO to be ready
+    networks:
+      - app-network
+
+  gui-backend:
+    build:
+      context: ./gui_backend
+      dockerfile: Dockerfile
+    container_name: gui-backend
+    ports:
+        - "8001:8001"
+        # GUI Backend port
+    volumes:
+        - ./gui_backend/app:/app  # Mount your local app code into /app in the container for live reload
+    environment:
+      MINIO_ENDPOINT: "minio-server:9000" # Uses service name for MinIO
+      MINIO_PUBLIC_ENDPOINT: "localhost:9000" # Public URL for MinIO, used by the GUI to access files
+      MINIO_ACCESS_KEY: "Hirzf9ujia"   # Must match MinIO config
+      MINIO_SECRET_KEY: "RNtS0NB7hR" # Must match MinIO config
+      MINIO_DEFAULT_BUCKET: "raw-data" # Example bucket for uploads; specify the default bucket name for storing files. Ensure the bucket is pre-created in MinIO or configure MinIO to create it automatically.
+      MINIO_USE_HTTPS: "false"
+      # Add PostgreSQL ENV VARS when your backend needs to connect to it
+      PG_HOST: "postgres-metadata-db"
+      PG_USER: "U1dXe0BNTC"
+      PG_PASSWORD: "EXG06q9wwD"
+      PG_DATABASE: "metadata_db"
+      PG_PORT: "5432"
+    depends_on:
+      - minio-server
+      - postgres-metadata-db # Will depend on PG when it starts writing metadata
+    networks:
+      - app-network
+
+
+networks:
+  app-network:   # Shared network for all services
+
+volumes:
+  minio_data:              # Volume for MinIO data
+  postgres_db_data:  # Volume for Postgres data

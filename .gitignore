@@ -8,7 +8,11 @@ venv/
 .venv/
 env/
 
+<<<<<<< HEAD
 # Environment file 
+=======
+# Environment file
+>>>>>>> 919c88b8fe2f1514d6690503728e9cfa65945b89
 .env
 
 # OS-specific

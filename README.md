@@ -25,3 +25,20 @@ Follow these steps to set up and run the backend services on a development machi
 ```bash
 git clone [https://github.com/wmorrill24/data-lake-server.git](https://github.com/wmorrill24/data-lake-server.git)
 cd data-lake-server
+```
+
+### 2. Create the Configuration File
+
+Copy the .env.example file to local .env file
+
+```bash
+cp .env.example .env
+```
+
+Open the .env file and fill in credentials / settings
+
+### 3. Create Persistent Data Directories
+
+Create directories to store persistent data on the machine and edit docker-compose to mount the directories.
+
+

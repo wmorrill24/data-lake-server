@@ -6,8 +6,8 @@ services:
       - "9000:9000"   # MinIO API port
       - "9001:9001"   # MinIO Console port
     environment:
-      MINIO_ROOT_USER: Hirzf9ujia
-      MINIO_ROOT_PASSWORD: RNtS0NB7hR
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data   # Persistent storage for MinIO
@@ -20,37 +20,26 @@ services:
     ports:
       - "5432:5432"  # Postgres port
     environment:
-      POSTGRES_USER: U1dXe0BNTC
-      POSTGRES_PASSWORD: EXG06q9wwD
-      POSTGRES_DB: metadata_db
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
     volumes:
       - postgres_db_data:/var/lib/postgresql/data   # Persistent storage for Postgres
     networks:
       - app-network
 
-  gui-backend:
+  server-backend:
     build:
-      context: ./gui_backend
+      context: ./server_backend
       dockerfile: Dockerfile
-    container_name: gui-backend
+    container_name: server-backend
     ports:
         - "8001:8001"
         # GUI Backend port
     volumes:
-        - ./gui_backend/app:/app  # Mount your local app code into /app in the container for live reload
-    environment:
-      MINIO_ENDPOINT: "minio-server:9000" # Uses service name for MinIO
-      MINIO_PUBLIC_ENDPOINT: "localhost:9000" # Public URL for MinIO, used by the GUI to access files
-      MINIO_ACCESS_KEY: "Hirzf9ujia"   # Must match MinIO config
-      MINIO_SECRET_KEY: "RNtS0NB7hR" # Must match MinIO config
-      MINIO_DEFAULT_BUCKET: "raw-data" # Example bucket for uploads; specify the default bucket name for storing files. Ensure the bucket is pre-created in MinIO or configure MinIO to create it automatically.
-      MINIO_USE_HTTPS: "false"
-      # Add PostgreSQL ENV VARS when your backend needs to connect to it
-      PG_HOST: "postgres-metadata-db"
-      PG_USER: "U1dXe0BNTC"
-      PG_PASSWORD: "EXG06q9wwD"
-      PG_DATABASE: "metadata_db"
-      PG_PORT: "5432"
+        - ./server_backend/app:/app  # Mount your local app code into /app in the container for live reload
+    env_file:
+      - .env
     depends_on:
       - minio-server
       - postgres-metadata-db # Will depend on PG when it starts writing metadata

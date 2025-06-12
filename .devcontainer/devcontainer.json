@@ -1,11 +1,11 @@
 {
-    "name": "Trino/MinIO/PG Backend Dev",
+    "name": "MinIO/PG Backend Dev",
     // Points to your existing docker-compose.yml file. The path is relative to this devcontainer.json file.
     "dockerComposeFile": [
         "../docker-compose.yml"
     ],
     // The name of the service in your docker-compose.yml to use for the dev container.
-    "service": "gui-backend",
+    "service": "server-backend",
     // The path in the container where your project's source code will be.
     "workspaceFolder": "/app",
     // Customizations for VS Code when working inside this dev container.

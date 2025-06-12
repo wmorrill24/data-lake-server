@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Environment file - NEVER commit the actual .env file
+.env
+
+# OS-specific
+.DS_Store
+*.swo
+*~

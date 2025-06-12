@@ -28,16 +28,16 @@ services:
     networks:
       - app-network
 
-  gui-backend:
+  server-backend:
     build:
-      context: ./gui_backend
+      context: ./server_backend
       dockerfile: Dockerfile
-    container_name: gui-backend
+    container_name: server-backend
     ports:
         - "8001:8001"
         # GUI Backend port
     volumes:
-        - ./gui_backend/app:/app  # Mount your local app code into /app in the container for live reload
+        - ./server_backend/app:/app  # Mount your local app code into /app in the container for live reload
     environment:
       MINIO_ENDPOINT: "minio-server:9000" # Uses service name for MinIO
       MINIO_PUBLIC_ENDPOINT: "localhost:9000" # Public URL for MinIO, used by the GUI to access files

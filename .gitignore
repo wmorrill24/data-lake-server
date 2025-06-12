@@ -8,7 +8,7 @@ venv/
 .venv/
 env/
 
-# Environment file - NEVER commit the actual .env file
+# Environment file 
 .env
 
 # OS-specific

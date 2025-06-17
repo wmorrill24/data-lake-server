@@ -10,7 +10,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     volumes:
-      - minio_data:/data   # Persistent storage for MinIO
+      - /data/minio_data:/data   # Persistent storage for MinIO
     networks:
       - app-network
 
@@ -24,14 +24,14 @@ services:
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: ${PG_DATABASE}
     volumes:
-      - postgres_db_data:/var/lib/postgresql/data   # Persistent storage for Postgres
+      - /data/postgres_data:/var/lib/postgresql/data   # Persistent storage for Postgres
     networks:
       - app-network
 
   server-backend:
     build:
       context: ./server_backend
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     container_name: server-backend
     ports:
         - "8001:8001"
@@ -49,7 +49,3 @@ services:
 
 networks:
   app-network:   # Shared network for all services
-
-volumes:
-  minio_data:              # Volume for MinIO data
-  postgres_db_data:  # Volume for Postgres data

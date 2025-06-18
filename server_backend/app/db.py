@@ -57,7 +57,7 @@ async def store_file_metadata_in_db(
     minio_bucket_name: str,
     minio_object_path: str,
     upload_timestamp: datetime.datetime,
-    research_project_id: str = None,
+    project_id: str = None,
     experiment_type: str = None,
     author: str = None,
     date_conducted: datetime.date = None,
@@ -75,7 +75,7 @@ async def store_file_metadata_in_db(
         minio_bucket_name: Name of the MinIO bucket where the file is stored.
         minio_object_path: Path to the object in MinIO.
         upload_timestamp: Timestamp when the file was uploaded.
-        research_project_id: (Optional) Associated research project ID.
+        project_id: (Optional) Associated project ID.
         experiment_type: (Optional) Type of experiment.
         author: (Optional) Author of the experiment.
         date_conducted: (Optional) Date when the experiment was conducted.
@@ -91,7 +91,7 @@ async def store_file_metadata_in_db(
     # Prepare data for insertion into the database
     data_to_insert = {
         "file_id": str(file_id),  # This is already a UUID object
-        "research_project_id": research_project_id,
+        "project_id": project_id,
         "file_name": original_file_name,
         "file_type": file_type_extension,
         "content_type": content_type,
@@ -112,11 +112,11 @@ async def store_file_metadata_in_db(
             # SQL insert statement for file metadata
             insert_query = """
             INSERT INTO file_index.files_metadata_catalog (
-                file_id, research_project_id, file_name, file_type, content_type,
+                file_id, project_id, file_name, file_type, content_type,
                 experiment_type, author, date_conducted, size_bytes,
                 minio_bucket_name, minio_object_path, upload_timestamp, custom_tags
             ) VALUES (
-                %(file_id)s, %(research_project_id)s, %(file_name)s, %(file_type)s,
+                %(file_id)s, %(project_id)s, %(file_name)s, %(file_type)s,
                 %(content_type)s, %(experiment_type)s, %(author)s,
                 %(date_conducted)s, %(size_bytes)s,
                 %(minio_bucket_name)s, %(minio_object_path)s,
@@ -132,7 +132,7 @@ async def store_file_metadata_in_db(
             "inserted_metadata_summary": {  # A summary of what was passed for insertion
                 "original_file_name": original_file_name,
                 "minio_object_path": minio_object_path,
-                "research_project_id": research_project_id,
+                "project_id": project_id,
             },
             "message": "Metadata stored successfully.",
         }
@@ -174,7 +174,7 @@ async def store_file_metadata_in_db(
 
 async def search_files_in_db(
     file_id: uuid.UUID | None = None,
-    research_project_id: str | None = None,
+    project_id: str | None = None,
     author: str | None = None,
     file_type: str | None = None,
     experiment_type: str | None = None,
@@ -186,7 +186,7 @@ async def search_files_in_db(
     Searches for file metadata in PostgreSQL based on filter criteria.
 
     Args:
-        research_project_id: Filter by an exact project ID (case-insensitive).
+        project_id: Filter by an exact project ID (case-insensitive).
         author: Filter by author name (case-insensitive).
         file_type: Filter by file extension (e.g., 'MATLAB', 'PDF'), case-insensitive.
         experiment_type: Filter by experiment type (case-insensitive).
@@ -207,7 +207,7 @@ async def search_files_in_db(
         conn = get_pg_connection()
         with conn.cursor() as cursor:
             base_query = """
-            SELECT file_id, research_project_id, file_name, file_type, content_type,
+            SELECT file_id, project_id, file_name, file_type, content_type,
                    experiment_type, author, date_conducted, size_bytes,
                    minio_bucket_name, minio_object_path, upload_timestamp, custom_tags
             FROM file_index.files_metadata_catalog
@@ -220,11 +220,11 @@ async def search_files_in_db(
                 where_clauses.append("file_id = %(file_id)s")
                 query_params["file_id"] = str(file_id)
 
-            if research_project_id:
+            if project_id:
                 # Use ILIKE for case-insensitive matching for text fields
-                where_clauses.append("research_project_id ILIKE %(project_id)s")
+                where_clauses.append("project_id ILIKE %(project_id)s")
                 query_params["project_id"] = (
-                    f"%{research_project_id}%"  # Add wildcards for partial match
+                    f"%{project_id}%"  # Add wildcards for partial match
                 )
 
             if author:

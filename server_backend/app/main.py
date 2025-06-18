@@ -60,7 +60,7 @@ async def process_and_store_file(
     This logic is shared between single file and folder uploads.
     """
     # Fetch metadata from dictionary
-    research_project_id = user_metadata.get("research_project_id", "")
+    project_id = user_metadata.get("project_id", "")
     author = user_metadata.get("author")
     experiment_type = user_metadata.get("experiment_type")
     date_conducted_str = user_metadata.get("date_conducted")
@@ -68,7 +68,7 @@ async def process_and_store_file(
 
     # Sanitize filename and project ID for safe storage
     preferred_filename = sanitize_filename(original_filename)
-    project_id_prefix = sanitize_project_id(research_project_id)
+    project_id_prefix = sanitize_project_id(project_id)
 
     # Combine the project prefix and the new folder prefix
     full_prefix = os.path.join(project_id_prefix, minio_folder_prefix)
@@ -132,7 +132,7 @@ async def process_and_store_file(
         experiment_type=experiment_type,
         date_conducted=date_conducted,
         author=author,
-        research_project_id=research_project_id,
+        project_id=project_id,
         custom_tags=custom_tags,
         size_bytes=file_size,
     )
@@ -282,9 +282,7 @@ async def search_files_endpoint(
     file_id: uuid.UUID | None = Query(
         None, description="Filter by exact file ID (UUID)."
     ),
-    research_project_id: str | None = Query(
-        None, description="Filter by exact research project ID."
-    ),
+    project_id: str | None = Query(None, description="Filter by exact project ID."),
     author: str | None = Query(
         None, description="Filter by author name (case-insensitive, partial match)."
     ),
@@ -310,7 +308,7 @@ async def search_files_endpoint(
     try:
         results = await search_files_in_db(
             file_id=file_id,
-            research_project_id=research_project_id,
+            project_id=project_id,
             author=author,
             file_type=file_type,
             experiment_type=experiment_type,
